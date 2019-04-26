@@ -26,4 +26,9 @@
 	      user_red_packet a;
     </select>
 
+    <!--清空表并重置索引-->
+    <update id="truncate">
+        truncate table user_red_packet
+    </update>
+
 </mapper>

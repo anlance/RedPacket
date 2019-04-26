@@ -10,6 +10,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -21,7 +22,7 @@ import java.util.Properties;
 
 @Configuration
 // 定义 Spring 扫描的包
-@ComponentScan(value = "club.anlan.*", includeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION,value = Service.class)})
+@ComponentScan(value = "club.*", includeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION,value = Service.class)},excludeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION,value = Controller.class)})
 // 使用事务驱动管理器
 @EnableTransactionManagement
 public class RootConfig implements TransactionManagementConfigurer {    // 实现接口配置注解驱动事务
@@ -73,7 +74,7 @@ public class RootConfig implements TransactionManagementConfigurer {    // 实�
     @Bean
     public MapperScannerConfigurer initMapperScannerConfigurer(){
         MapperScannerConfigurer msc = new MapperScannerConfigurer();
-        msc.setBasePackage("club.anlan.mapper");
+        msc.setBasePackage("club.*");
         msc.setSqlSessionFactoryBeanName("sqlSessionFactory");
         msc.setAnnotationClass(Repository.class);
         return msc;

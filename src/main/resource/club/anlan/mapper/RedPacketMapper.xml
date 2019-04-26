@@ -15,10 +15,22 @@
     </update>
 
     <!--新增红包-->
-    <insert id="addNewRedPacket" useGeneratedKeys="true" keyProperty="id" parameterType="club.anlan.pojo.RedPacket">
-        insert into user_red_packet (red_packet_id,user_id,amount,grab_time,note)
-        values (#{redPacketId},#{userId},#{amount},now(),#{note})
+    <insert id="addNewRedPacket"  parameterType="club.anlan.pojo.RedPacket">
+        INSERT INTO red_packet (user_id,amount,send_time,total,unit_amount,stock,note)
+        VALUES(0,#{total}*#{unitAmount},NOW(),#{total},#{unitAmount},#{total},concat(#{total}*#{unitAmount},'金额，',#{total},'个红包，每个',#{unitAmount},'元'))
     </insert>
+
+    <!--清空表并重置索引-->
+    <update id="truncate">
+        truncate table red_packet
+    </update>
+
+    <!--查询红包具体信息 for update-->
+    <select id="getRedPacketForUpdate" resultType="club.anlan.pojo.RedPacket">
+        select id,user_id,amount,send_time,total,unit_amount,stock,version,note
+        from red_packet
+        where id = #{id} for update
+    </select>
 
 
 

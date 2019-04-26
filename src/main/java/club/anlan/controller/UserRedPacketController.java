@@ -22,13 +22,26 @@ public class UserRedPacketController {
 
     @RequestMapping("/grabRedPacket")
     @ResponseBody
-    public Map<String,Object> grabRedPacket(Long redPacketId, Long userId){
+    public Map<String, Object> grabRedPacket(Long redPacketId, Long userId) {
         // 抢红包
-        int result = userRedPacketService.grabRedPacket(redPacketId,userId);
-        Map<String,Object> map = new HashMap<>();
-        boolean flag = result>0;
-        map.put("success",flag);
-        map.put("message",flag? "抢红包成功":"抢红包失败");
+        int result = userRedPacketService.grabRedPacket(redPacketId, userId);
+        Map<String, Object> map = new HashMap<>();
+        boolean flag = result > 0;
+        map.put("success", flag);
+        map.put("message", flag ? "抢红包成功" : "抢红包失败");
         return map;
     }
+
+    @RequestMapping("/grabRedPacketForUpdate")
+    @ResponseBody
+    public Map<String, Object> grabRedPacketForUpdate(Long redPacketId, Long userId) {
+        // 抢红包
+        int result = userRedPacketService.grabRedPacketForUpdate(redPacketId, userId);
+        Map<String, Object> map = new HashMap<>();
+        boolean flag = result > 0;
+        map.put("success", flag);
+        map.put("message", flag ? "抢红包成功" : "抢红包失败");
+        return map;
+    }
+
 }

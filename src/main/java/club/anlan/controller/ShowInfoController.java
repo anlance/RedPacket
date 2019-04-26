@@ -21,14 +21,22 @@ public class ShowInfoController {
 
 
     @RequestMapping("/showDataAndTime")
-    public String ShowDataIsConsistency(Long redPacketId, Model model){
-        Map<String,Integer> resMap = userRedPacketService.getMaxSunAndCountById(redPacketId);
+    public String ShowDataIsConsistency(Long redPacketId, Model model) {
+        Map<String, Integer> resMap = userRedPacketService.getMaxSunAndCountById(redPacketId);
         RedPacket redPacket = redPacketService.getRedPacket(redPacketId);
         Integer usedTime = userRedPacketService.getUsedTimeById(redPacketId);
-        model.addAttribute("redPacket",redPacket);
-        model.addAttribute("resMap",resMap);
-        model.addAttribute("usedTime",usedTime+" s");
+        model.addAttribute("redPacket", redPacket);
+        model.addAttribute("resMap", resMap);
+        model.addAttribute("usedTime", usedTime + " s");
         return "show";
+    }
+
+    @RequestMapping("/truncateAllTable")
+    public String TruncateAllTable(Model model){
+        redPacketService.truncate();
+        userRedPacketService.truncate();
+        model.addAttribute("truncateSuccess",1);
+        return "main";
     }
 
 

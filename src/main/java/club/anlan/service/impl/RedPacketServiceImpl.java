@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service("redPacketService")
+@Service
 public class RedPacketServiceImpl implements RedPacketService {
 
     @Autowired
@@ -28,7 +28,13 @@ public class RedPacketServiceImpl implements RedPacketService {
     }
 
     @Override
-    public int addNewRedPacket() {
-        return redPacketMapper.addNewRedPacket();
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    public int addNewRedPacket(Integer total, Double unitAmount) {
+        return redPacketMapper.addNewRedPacket(total, unitAmount);
+    }
+
+    @Override
+    public void truncate() {
+        redPacketMapper.truncate();
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Map;
 
@@ -21,9 +22,10 @@ public class RedPacketController {
 
 
     @RequestMapping("/addNewRedPacket")
-    public String addNewRedPacket(){
-        // TODO: 2019/4/25  
-        int result = redPacketService.addNewRedPacket();
+    public String addNewRedPacket(@RequestParam("total") Integer total,@RequestParam("unitAmount") Double unitAmount, Model model) {
+        int result = redPacketService.addNewRedPacket(total, unitAmount);
+        model.addAttribute("total", total);
+        model.addAttribute("unitAmount", unitAmount);
         return "main";
     }
 

@@ -15,25 +15,44 @@
     <!-- 加载Query文件-->
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.0.js">
     </script>
+
     <script type="text/javascript">
         $(document).ready(function () {
-            //模拟30000个异步请求，进行并发
-            var max = 30000;
-            for (var i = 1; i <= max; i++) {
-                //jQuery的post请求，请注意这是异步请求
-                $.post({
-                    //请求抢id为1的红包
-                    //根据自己请求修改对应的url和大红包编号
-                    url: "${ctx}/userRedPacket/grabRedPacket.do?redPacketId=1&userId=" + i,
-                    //成功后的方法
-                    success: function (result) {
-                    }
-                });
-            }
+            var url = "";
+            $("#start").click(function () {
+                var choice = parseInt($("input[name='choice']:checked").val());
+                if(choice==0){
+                    url = "${ctx}/userRedPacket/grabRedPacket.do?redPacketId=1&userId=";
+                }
+                else if(choice==1){
+                    url = "${ctx}/userRedPacket/grabRedPacketForUpdate.do?redPacketId=1&userId=";
+                }
+                //模拟50000个异步请求，进行并发
+                var max = 50000;
+                for (var i = 1; i <= max; i++) {
+                    //jQuery的post请求，注意这是异步请求
+                    $.post({
+                        //请求抢id为1的红包
+                        //根据自己请求修改对应的url和大红包编号
+                        url: url + i,
+                        //成功后的方法
+                        success: function (result) {
+                        }
+                    });
+                }
+
+            })
         });
     </script>
 </head>
 <body>
-    正在模拟抢红包.......
+    <p>
+        准备开始抢红包.......
+    </p><br><br>
+    <form>
+        <input type="radio" name="choice" value="0" checked>不做处理开始<br>
+        <input type="radio" name="choice" value="1">悲观锁开始<br>
+    </form>
+    <button id="start" name="start" >开始</button>
 </body>
 </html>
