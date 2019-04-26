@@ -84,13 +84,14 @@ public class UserRedPacketServiceImpl implements UserRedPacketService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public int grabRedPacketForVersion(Long redPacketId, Long userId) {
         // 获取红包信息
         RedPacket redPacket = redPacketMapper.getRedPacket(redPacketId);
         // 当前小红包库存大于0
         if (redPacket.getStock() > 0) {
             int update = redPacketMapper.decreaseRedPacketForVersion(redPacketId, redPacket.getVersion());
-            if(update==0)
+            if (update == 0)
                 return FAILED;
             // 生成抢红包信息
             UserRedPacket userRedPacket = new UserRedPacket();
@@ -103,4 +104,61 @@ public class UserRedPacketServiceImpl implements UserRedPacketService {
         }
         return FAILED;
     }
+
+    @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    public int grabRedPacketForVersionAndTime(Long redPacketId, Long userId) {
+        // 记录开始时间
+        long startTime = System.currentTimeMillis();
+        while (true) {
+            // 获取当前时间
+            long endTime = System.currentTimeMillis();
+            if (endTime - startTime > 100)
+                return FAILED;
+            // 获取红包信息
+            RedPacket redPacket = redPacketMapper.getRedPacket(redPacketId);
+            // 当前小红包库存大于0
+            if (redPacket.getStock() > 0) {
+                int update = redPacketMapper.decreaseRedPacketForVersion(redPacketId, redPacket.getVersion());
+                if (update == 0)
+                    continue;
+                // 生成抢红包信息
+                UserRedPacket userRedPacket = new UserRedPacket();
+                userRedPacket.setRedPacketId(redPacketId);
+                userRedPacket.setUserId(userId);
+                userRedPacket.setAmount(redPacket.getUnitAmount());
+                userRedPacket.setNote("时间戳 抢 " + redPacketId + " 号红包");
+                int result = userRedPacketMapper.grabRedPacket(userRedPacket);
+                return result;
+            } else {
+                return FAILED;
+            }
+        }
+    }
+
+    @Override
+    public int grabRedPacketForVersionAndN(Long redPacketId, Long userId, int n) {
+        for (int i = 0; i < n; i++) {
+            // 获取红包信息
+            RedPacket redPacket = redPacketMapper.getRedPacket(redPacketId);
+            // 当前小红包库存大于0
+            if (redPacket.getStock() > 0) {
+                int update = redPacketMapper.decreaseRedPacketForVersion(redPacketId, redPacket.getVersion());
+                if (update == 0)
+                    continue;
+                // 生成抢红包信息
+                UserRedPacket userRedPacket = new UserRedPacket();
+                userRedPacket.setRedPacketId(redPacketId);
+                userRedPacket.setUserId(userId);
+                userRedPacket.setAmount(redPacket.getUnitAmount());
+                userRedPacket.setNote("次数 抢 " + redPacketId + " 号红包");
+                int result = userRedPacketMapper.grabRedPacket(userRedPacket);
+                return result;
+            } else {
+                return FAILED;
+            }
+        }
+        return FAILED;
+    }
+
 }

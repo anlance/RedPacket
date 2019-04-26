@@ -56,4 +56,29 @@ public class UserRedPacketController {
         return map;
     }
 
+    @RequestMapping("/grabRedPacketForVersionAndTime")
+    @ResponseBody
+    public Map<String, Object> grabRedPacketForVersionAndTime(Long redPacketId, Long userId) {
+        // 抢红包
+        int result = userRedPacketService.grabRedPacketForVersionAndTime(redPacketId, userId);
+        Map<String, Object> map = new HashMap<>();
+        boolean flag = result > 0;
+        map.put("success", flag);
+        map.put("message", flag ? "抢红包成功" : "抢红包失败");
+        return map;
+    }
+
+    @RequestMapping("/grabRedPacketForVersionAndN")
+    @ResponseBody
+    public Map<String, Object> grabRedPacketForVersionAndN(Long redPacketId, Long userId) {
+        // 抢红包
+        int n = 3;
+        int result = userRedPacketService.grabRedPacketForVersionAndN(redPacketId, userId,n);
+        Map<String, Object> map = new HashMap<>();
+        boolean flag = result > 0;
+        map.put("success", flag);
+        map.put("message", flag ? "抢红包成功" : "抢红包失败");
+        return map;
+    }
+
 }
