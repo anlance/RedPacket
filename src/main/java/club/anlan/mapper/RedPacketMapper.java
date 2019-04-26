@@ -45,4 +45,6 @@ public interface RedPacketMapper {
      * @return 红包具体信息
      */
     RedPacket getRedPacketForUpdate(Long redPacketId);
+
+    int decreaseRedPacketForVersion(@Param("id") Long redPacketId,@Param("version") Integer version);
 }

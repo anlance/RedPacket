@@ -26,4 +26,6 @@ public interface UserRedPacketService {
     void truncate();
 
     int grabRedPacketForUpdate(Long redPacketId, Long userId);
+
+    int grabRedPacketForVersion(Long redPacketId, Long userId);
 }
