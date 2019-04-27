@@ -61,4 +61,17 @@ public interface UserRedPacketService {
      * @return 影响记录数
      */
     int grabRedPacketForVersionAndN(Long redPacketId, Long userId, int n);
+
+    /**
+     * 通过 Redis 抢红包
+     *
+     * @param redPacketId 红包编号
+     * @param userId 用户编号
+     * @return
+     * 0--没有库存，失败
+     * 1--成功，且不是最后一个红包
+     * 2--成功，且是最后一个红包
+     */
+    Long grabRedPacketByRedis(Long redPacketId, Long userId);
+
 }

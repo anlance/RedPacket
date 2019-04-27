@@ -4,13 +4,16 @@ import club.anlan.mapper.RedPacketMapper;
 import club.anlan.mapper.UserRedPacketMapper;
 import club.anlan.pojo.RedPacket;
 import club.anlan.pojo.UserRedPacket;
+import club.anlan.service.RedisRedPacketService;
 import club.anlan.service.UserRedPacketService;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import redis.clients.jedis.Jedis;
 
 import java.util.Map;
 
@@ -22,6 +25,12 @@ public class UserRedPacketServiceImpl implements UserRedPacketService {
 
     @Autowired
     private RedPacketMapper redPacketMapper = null;
+
+    @Autowired
+    private RedisTemplate redisTemplate = null;
+
+    @Autowired
+    private RedisRedPacketService redisRedPacketService = null;
 
     //失败
     private static final int FAILED = 0;
@@ -159,6 +168,55 @@ public class UserRedPacketServiceImpl implements UserRedPacketService {
             }
         }
         return FAILED;
+    }
+
+
+    // Lua脚本
+    String script = "local listKey = 'red_packet_list_'..KEYS[1] \n"
+            + "local redPacket = 'red_packet_'..KEYS[1] \n"
+            + "local stock = tonumber(redis.call('hget', redPacket, 'stock')) \n"
+            + "if stock <= 0 then return 0 end \n"
+            + "stock = stock -1 \n"
+            + "redis.call('hset', redPacket, 'stock', tostring(stock)) \n"
+            + "redis.call('rpush', listKey, ARGV[1]) \n"
+            + "if stock == 0 then return 2 end \n"
+            + "return 1 \n";
+
+    // 保存 Redis 返回的32位的 sha1 编码, 使用它去执行缓存的Lua脚本
+    String sha1 = null;
+
+    @Override
+    public Long grabRedPacketByRedis(Long redPacketId, Long userId) {
+        //当前抢红包用户和日期信息
+        String args = userId + "-" + System.currentTimeMillis();
+        Long result = null;
+        //获取 Redis 底层操作对象
+        Jedis jedis = (Jedis) redisTemplate.getConnectionFactory().getConnection().getNativeConnection();
+
+        try {
+            //如果脚本没有加载过，那么进行加载
+            if (sha1 == null) {
+                sha1 = jedis.scriptLoad(script);
+            }
+            Object res = jedis.evalsha(sha1, 1, redPacketId + "", args);
+            result = (Long) res;
+            //返回2时为最后一个红包，此时将抢红包信息通过异步保存到数据库中
+            if (result == 2) {
+                //获取单个小红包金额
+                String unitAmountStr = jedis.hget("red_packet_" + redPacketId, "unit_amount");
+                //触发保存数据库操作
+                Double unitAmount = Double.parseDouble(unitAmountStr);
+                System.out.println("thread_name      =      " + Thread.currentThread().getName());
+                redisRedPacketService.saveUserRedPacketByRedis(redPacketId, unitAmount);
+            }
+        } finally {
+            //确保 Jedis 顺利关闭
+            if(jedis!=null && jedis.isConnected()){
+                jedis.close();
+            }
+        }
+
+        return result;
     }
 
 }

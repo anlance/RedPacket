@@ -36,6 +36,9 @@
                 else if(choice==4){
                     url = "${ctx}/userRedPacket/grabRedPacketForVersionAndN.do?redPacketId=1&userId=";
                 }
+                else if(choice==5){
+                    url = "${ctx}/userRedPacket/grabRedPacketByRedis.do?redPacketId=1&userId=";
+                }
                 //模拟50000个异步请求，进行并发
                 var max = 50000;
                 for (var i = 1; i <= max; i++) {
@@ -64,6 +67,7 @@
         <input type="radio" name="choice" value="2">乐观锁开始 (version)<br><br>
         <input type="radio" name="choice" value="3">乐观锁开始 (时间戳重入)<br><br>
         <input type="radio" name="choice" value="4">乐观锁开始 (次数重入)<br><br>
+        <input type="radio" name="choice" value="5"> redis 开始<br><br>
     </form>
     <br>
     <button id="start" name="start" >开始</button>
